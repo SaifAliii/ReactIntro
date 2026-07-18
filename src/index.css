@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+/* ===== Design tokens: single source of truth for the whole app ===== */
+@theme {
+  --color-bg: #0b0f1a;
+  --color-surface: #121829;
+  --color-surface-2: #1a2236;
+  --color-border: #26304a;
+  --color-ink: #e7ecf5;
+  --color-muted: #8a97b3;
+
+  --color-brand: #8b5cf6; /* violet */
+  --color-brand-2: #22d3ee; /* cyan */
+
+  /* semantic colors used across the visualizations */
+  --color-stack: #8b5cf6; /* call stack — violet */
+  --color-webapi: #f59e0b; /* web apis — amber */
+  --color-macro: #38bdf8; /* macrotask queue — sky */
+  --color-micro: #f472b6; /* microtask queue — pink */
+  --color-ok: #34d399; /* success — green */
+  --color-warn: #fb7185; /* attention — rose */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(139, 92, 246, 0.12), transparent 60%),
+    radial-gradient(1000px 500px at 0% 10%, rgba(34, 211, 238, 0.08), transparent 55%),
+    var(--color-bg);
+  color: var(--color-ink);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin custom scrollbars to match the dark theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+}
+
+/* Shiki highlighted lines (react-shiki adds .highlighted to marked lines) */
+.highlighted {
+  display: inline-block;
+  width: calc(100% + 2rem);
+  margin: 0 -1rem;
+  padding: 0 1rem 0 calc(1rem - 2px);
+  background: rgba(139, 92, 246, 0.16);
+  border-left: 2px solid var(--color-brand);
+}
