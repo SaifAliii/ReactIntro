@@ -2,28 +2,16 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button, Segmented } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import LessonLayout from "@/components/LessonLayout";
 import AnimationStage from "@/components/AnimationStage";
 import StepControls from "@/components/StepControls";
 import CodeBlock from "@/components/CodeBlock";
 import { Callout, Section } from "@/components/ui";
 import { useStepPlayer } from "@/components/useStepPlayer";
+import T, { useT } from "@/i18n/T";
 
-const timeline = [
-  { label: "Render", desc: "React builds the new tree", tag: "react" },
-  { label: "Commit", desc: "React mutates the DOM", tag: "react" },
-  {
-    label: "useLayoutEffect",
-    desc: "fires synchronously — BEFORE paint",
-    tag: "layout",
-  },
-  { label: "🖼 Browser paint", desc: "pixels hit the screen", tag: "paint" },
-  {
-    label: "useEffect",
-    desc: "fires asynchronously — AFTER paint",
-    tag: "effect",
-  },
-];
+const tags = ["react", "react", "layout", "paint", "effect"];
 
 const tagColor: Record<string, string> = {
   react: "var(--color-brand)",
@@ -36,6 +24,7 @@ type Mode = "effect" | "layout";
 
 /** A box that starts at the far left and gets centered inside an effect. */
 function FlashBox({ mode, replayKey }: { mode: Mode; replayKey: number }) {
+  const { t } = useTranslation();
   const [left, setLeft] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -47,7 +36,7 @@ function FlashBox({ mode, replayKey }: { mode: Mode; replayKey: number }) {
   }, [replayKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative h-16 overflow-hidden rounded-lg bg-[var(--color-surface-2)]">
+    <div className="relative h-16 overflow-hidden rounded-lg bg-surface-2">
       <div
         ref={ref}
         className="absolute top-2 h-12 w-12 rounded-md"
@@ -58,44 +47,46 @@ function FlashBox({ mode, replayKey }: { mode: Mode; replayKey: number }) {
             mode === "layout" ? "var(--color-brand-2)" : "var(--color-ok)",
         }}
       />
-      <div className="absolute bottom-1 left-2 text-[10px] text-[var(--color-muted)]">
-        target →
+      <div className="absolute bottom-1 left-2 text-[10px] text-muted">
+        {t("lessons.effect-vs-layouteffect.targetLabel")}
       </div>
     </div>
   );
 }
 
 export default function EffectsLesson() {
-  const player = useStepPlayer(timeline.length, { interval: 1200 });
+  const t = useT();
+  const player = useStepPlayer(tags.length, { interval: 1200 });
   const [mode, setMode] = useState<Mode>("effect");
   const [replayKey, setReplayKey] = useState(0);
+  const timelineLabels = t("lessons.effect-vs-layouteffect.timelineLabels", {
+    returnObjects: true,
+  }) as string[];
+  const timelineDescs = t("lessons.effect-vs-layouteffect.timelineDescs", {
+    returnObjects: true,
+  }) as string[];
 
   return (
     <LessonLayout slug="effect-vs-layouteffect">
       <Section>
         <p>
-          Both hooks run <em>after</em> render, but on opposite sides of the
-          browser paint. <code>useLayoutEffect</code> fires{" "}
-          <strong className="text-[var(--color-ink)]">
-            synchronously before the browser paints
-          </strong>{" "}
-          — so DOM measurements and corrections happen invisibly.{" "}
-          <code>useEffect</code> fires{" "}
-          <strong className="text-[var(--color-ink)]">after paint</strong>, so
-          any DOM change it makes can cause a visible flicker.
+          <T k="lessons.effect-vs-layouteffect.intro" />
         </p>
       </Section>
 
-      <AnimationStage label="Order of operations" minH={200}>
+      <AnimationStage
+        label={t("lessons.effect-vs-layouteffect.orderLabel")}
+        minH={200}
+      >
         <div className="flex h-full items-center">
           <div className="flex w-full flex-wrap items-stretch gap-2">
-            {timeline.map((t, i) => {
+            {timelineLabels.map((label, i) => {
               const on = player.step === i;
               const passed = player.step > i;
-              const color = tagColor[t.tag];
+              const color = tagColor[tags[i]];
               return (
                 <motion.div
-                  key={t.label}
+                  key={label}
                   animate={{
                     opacity: on || passed ? 1 : 0.45,
                     scale: on ? 1.04 : 1,
@@ -114,10 +105,10 @@ export default function EffectsLesson() {
                     className="text-sm font-bold"
                     style={{ color: on ? color : "var(--color-ink)" }}
                   >
-                    {t.label}
+                    {label}
                   </div>
-                  <div className="mt-1 text-[11px] text-[var(--color-muted)]">
-                    {t.desc}
+                  <div className="mt-1 text-[11px] text-muted">
+                    {timelineDescs[i]}
                   </div>
                 </motion.div>
               );
@@ -126,15 +117,11 @@ export default function EffectsLesson() {
         </div>
       </AnimationStage>
 
-      <StepControls player={player} stepLabels={timeline.map((t) => t.desc)} />
+      <StepControls player={player} stepLabels={timelineDescs} />
 
-      <Section title="See the flicker">
+      <Section title={t("lessons.effect-vs-layouteffect.seeFlickerTitle")}>
         <p>
-          Below, a box mounts at the left edge and an effect moves it to the
-          right. With <code>useEffect</code> the browser can paint the box at
-          the wrong spot first (a flash). With <code>useLayoutEffect</code> the
-          move happens before paint, so you only ever see the final position.
-          Switch modes and hit replay.
+          <T k="lessons.effect-vs-layouteffect.seeFlickerBody" />
         </p>
       </Section>
 
@@ -144,8 +131,14 @@ export default function EffectsLesson() {
             value={mode}
             onChange={setMode}
             options={[
-              { label: "useEffect (after paint)", value: "effect" },
-              { label: "useLayoutEffect (before paint)", value: "layout" },
+              {
+                label: t("lessons.effect-vs-layouteffect.segEffect"),
+                value: "effect",
+              },
+              {
+                label: t("lessons.effect-vs-layouteffect.segLayout"),
+                value: "layout",
+              },
             ]}
             className="[&>.ant-segmented-group]:gap-3"
           />
@@ -154,7 +147,7 @@ export default function EffectsLesson() {
           icon={<ReloadOutlined />}
           onClick={() => setReplayKey((k) => k + 1)}
         >
-          Replay mount
+          {t("lessons.effect-vs-layouteffect.replay")}
         </Button>
       </div>
 
@@ -185,12 +178,11 @@ useLayoutEffect(() => {
         language="tsx"
       />
 
-      <Callout kind="tip" title="Which should I use?">
-        Default to <code>useEffect</code> — it doesn&apos;t block painting, so
-        it keeps the UI responsive. Reach for <code>useLayoutEffect</code> only
-        when you must read layout (size/position) and synchronously re-adjust
-        the DOM to avoid a visible jump: tooltips, measuring, scroll
-        restoration.
+      <Callout
+        kind="tip"
+        title={t("lessons.effect-vs-layouteffect.calloutTitle")}
+      >
+        <T k="lessons.effect-vs-layouteffect.calloutBody" />
       </Callout>
     </LessonLayout>
   );

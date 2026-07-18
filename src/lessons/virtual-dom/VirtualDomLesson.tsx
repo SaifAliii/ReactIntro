@@ -5,6 +5,7 @@ import StepControls from '@/components/StepControls'
 import CodeBlock from '@/components/CodeBlock'
 import { Callout, Section } from '@/components/ui'
 import { useStepPlayer } from '@/components/useStepPlayer'
+import T, { useT } from '@/i18n/T'
 import VTree, { type VNode } from '../_shared/VTree'
 
 const jsx = `function Profile() {
@@ -26,18 +27,7 @@ const vdom = {
   ],
 }`
 
-const steps = [
-  { note: 'A component is just a function that returns JSX.', reveal: 0 },
-  {
-    note: 'The compiler turns each JSX tag into a plain JS object node.',
-    reveal: 1,
-  },
-  { note: 'Children become nested objects — a whole tree in memory.', reveal: 2 },
-  {
-    note: 'This lightweight object tree is the Virtual DOM. No real DOM yet!',
-    reveal: 3,
-  },
-]
+const reveals = [0, 1, 2, 3]
 
 function buildTree(reveal: number): VNode | null {
   if (reveal < 1) return null
@@ -66,24 +56,20 @@ function buildTree(reveal: number): VNode | null {
 }
 
 export default function VirtualDomLesson() {
-  const player = useStepPlayer(steps.length, { interval: 1500 })
+  const t = useT()
+  const player = useStepPlayer(reveals.length, { interval: 1500 })
   // reveal grows monotonically as you step forward
-  const reveal = Math.max(
-    ...steps.slice(0, player.step + 1).map((s) => s.reveal),
-  )
+  const reveal = Math.max(...reveals.slice(0, player.step + 1))
   const tree = useMemo(() => buildTree(reveal), [reveal])
+  const stepLabels = t('lessons.virtual-dom.steps', {
+    returnObjects: true,
+  }) as string[]
 
   return (
     <LessonLayout slug="virtual-dom">
       <Section>
         <p>
-          When you write JSX, the browser never sees it. A compiler (Babel or
-          the TypeScript/SWC toolchain) rewrites every tag into a{' '}
-          <code>React.createElement</code> call, which returns an ordinary{' '}
-          <strong className="text-[var(--color-ink)]">JavaScript object</strong>
-          . Nest those objects and you get a tree — the{' '}
-          <strong className="text-[var(--color-ink)]">Virtual DOM</strong>: a
-          cheap, in-memory description of what the UI should look like.
+          <T k="lessons.virtual-dom.intro" />
         </p>
       </Section>
 
@@ -92,20 +78,17 @@ export default function VirtualDomLesson() {
           <CodeBlock code={jsx} />
           <CodeBlock code={vdomObject} language="js" />
         </div>
-        <AnimationStage label="Virtual DOM tree" minH={360}>
+        <AnimationStage label={t('lessons.virtual-dom.stageLabel')} minH={360}>
           <div className="flex h-full items-center overflow-x-auto">
             <VTree root={tree} />
           </div>
         </AnimationStage>
       </div>
 
-      <StepControls player={player} stepLabels={steps.map((s) => s.note)} />
+      <StepControls player={player} stepLabels={stepLabels} />
 
-      <Callout kind="info" title="Why keep a copy in memory?">
-        Touching the real DOM is slow. By building and comparing these
-        lightweight objects first, React can figure out the <em>smallest</em>{' '}
-        set of real DOM operations before it touches the page — which is exactly
-        what the next lessons show.
+      <Callout kind="info" title={t('lessons.virtual-dom.calloutTitle')}>
+        <T k="lessons.virtual-dom.calloutBody" />
       </Callout>
     </LessonLayout>
   )

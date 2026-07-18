@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { ConfigProvider, App as AntApp } from 'antd'
 import { RouterProvider } from 'react-router-dom'
 import './index.css'
+import './i18n'
 import { antdTheme } from './theme/antdTheme'
 import { router } from './app/router'
 

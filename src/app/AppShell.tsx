@@ -2,42 +2,46 @@ import { useMemo, useState } from "react";
 import { Layout, Menu, Grid, Drawer, Button } from "antd";
 import { MenuOutlined, ThunderboltFilled } from "@ant-design/icons";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { lessonGroups, lessons } from "@/lessons/registry";
 
 const { Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
 
 function useMenuItems() {
+  const { t } = useTranslation();
   return useMemo(
     () =>
       lessonGroups.map((group) => ({
         key: group,
-        label: group,
+        label: t(`groups.${group}`, { defaultValue: group }),
         type: "group" as const,
         children: lessons
           .filter((l) => l.group === group)
           .map((l) => ({
             key: `/lesson/${l.slug}`,
-            label: l.title,
+            label: t(`lessons.${l.slug}.title`, { defaultValue: l.title }),
           })),
       })),
-    [],
+    [t],
   );
 }
 
 function Brand() {
+  const { t } = useTranslation();
   return (
     <Link
       to="/"
-      className="flex items-center gap-2 px-4 py-4 text-[var(--color-ink)] no-underline"
+      className="flex items-center gap-2 px-4 py-4 text-ink no-underline"
     >
-      <span className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--color-brand)]/20 text-[var(--color-brand)]">
+      <span className="grid h-8 w-8 place-items-center rounded-lg bg-(--color-brand)/20 text-(--color-brand)">
         <ThunderboltFilled />
       </span>
       <span className="text-[15px] font-bold leading-tight">
-        React<span className="text-[var(--color-brand)]">Internals</span>
-        <span className="block text-[11px] font-normal text-[var(--color-muted)]">
-          & the JS Event Loop
+        {t("brand.namePart1")}
+        <span className="text-(--color-brand)">{t("brand.namePart2")}</span>
+        <span className="block text-[11px] font-normal text-muted">
+          {t("brand.sub")}
         </span>
       </span>
     </Link>
@@ -66,21 +70,21 @@ export default function AppShell() {
   );
 
   return (
-    <Layout className="min-h-screen !bg-transparent">
+    <Layout className="min-h-screen bg-transparent!">
       {!isMobile && (
         <Sider
           width={272}
           theme="dark"
-          className="!sticky top-0 h-screen overflow-auto border-r border-[var(--color-border)] backdrop-blur"
+          className="sticky! top-0 h-screen overflow-auto border-r border-border backdrop-blur"
         >
           <Brand />
           {menu}
         </Sider>
       )}
 
-      <Layout className="min-w-0 !bg-transparent">
+      <Layout className="min-w-0 bg-transparent!">
         {isMobile && (
-          <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface)]/70 px-3 py-2 backdrop-blur">
+          <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-border bg-surface/70 px-3 py-2 backdrop-blur">
             <Button
               type="text"
               icon={<MenuOutlined />}
@@ -89,7 +93,7 @@ export default function AppShell() {
             <Brand />
           </div>
         )}
-        <Content className="min-w-0 !bg-transparent">
+        <Content className="min-w-0 bg-transparent!">
           <Outlet />
         </Content>
       </Layout>

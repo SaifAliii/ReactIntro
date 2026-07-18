@@ -67,8 +67,19 @@ src/
     _shared/      # VTree (virtual DOM tree renderer), RenderPulse
     <topic>/      # one folder per lesson
   theme/          # Ant Design dark theme config
+  i18n/           # react-i18next setup, <T> rich-text helper, locales/en.json
   index.css       # Tailwind import + design tokens (CSS variables)
 ```
+
+### Translations (i18n)
+
+All user-facing text lives in `src/i18n/locales/en.json` (the source of truth).
+Components read it with `useTranslation()`/`useT()` for plain strings and the
+`<T k="..." />` helper for rich text (strings may contain `<strong>`, `<em>`,
+`<code>`, `<br>` tags). Code samples in lessons are intentionally **not**
+translated. To add a language, create `src/i18n/locales/<code>.json` and
+register it in `src/i18n/index.ts` (`resources`); add a language switcher if you
+want runtime switching.
 
 ### Adding a lesson
 

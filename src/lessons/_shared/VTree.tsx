@@ -1,90 +1,91 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export type NodeStatus =
-  | 'same'
-  | 'add'
-  | 'remove'
-  | 'update'
-  | 'move'
-  | 'active'
+  | "same"
+  | "add"
+  | "remove"
+  | "update"
+  | "move"
+  | "active";
 
 export interface VNode {
-  id: string
-  tag: string
-  text?: string
+  id: string;
+  tag: string;
+  text?: string;
   /** a single illustrative prop, e.g. className="active" */
-  prop?: string
-  keyLabel?: string
-  status?: NodeStatus
-  children?: VNode[]
+  prop?: string;
+  keyLabel?: string;
+  status?: NodeStatus;
+  children?: VNode[];
 }
 
 export const statusColor: Record<NodeStatus, string> = {
-  same: 'var(--color-border)',
-  add: 'var(--color-ok)',
-  remove: 'var(--color-warn)',
-  update: 'var(--color-webapi)',
-  move: 'var(--color-brand-2)',
-  active: 'var(--color-brand)',
-}
+  same: "var(--color-border)",
+  add: "var(--color-ok)",
+  remove: "var(--color-warn)",
+  update: "var(--color-webapi)",
+  move: "var(--color-brand-2)",
+  active: "var(--color-brand)",
+};
 
-const statusLabel: Partial<Record<NodeStatus, string>> = {
-  add: 'added',
-  remove: 'removed',
-  update: 'changed',
-  move: 'moved',
-}
+const statusLabelKey: Partial<Record<NodeStatus, string>> = {
+  add: "viz.vtree.added",
+  remove: "viz.vtree.removed",
+  update: "viz.vtree.changed",
+  move: "viz.vtree.moved",
+};
 
 function NodeBox({ node }: { node: VNode }) {
-  const status = node.status ?? 'same'
-  const color = statusColor[status]
-  const tag = statusLabel[status]
+  const { t } = useTranslation();
+  const status = node.status ?? "same";
+  const color = statusColor[status];
+  const labelKey = statusLabelKey[status];
+  const tag = labelKey ? t(labelKey) : undefined;
   return (
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{
-        opacity: status === 'remove' ? 0.45 : 1,
+        opacity: status === "remove" ? 0.45 : 1,
         scale: 1,
       }}
       exit={{ opacity: 0, scale: 0.8 }}
-      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+      transition={{ type: "spring", stiffness: 320, damping: 26 }}
       className="relative inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-mono text-[12.5px] whitespace-nowrap"
       style={{
         borderColor: color,
         background: `color-mix(in srgb, ${color} 12%, var(--color-surface))`,
         boxShadow:
-          status === 'same'
-            ? 'none'
+          status === "same"
+            ? "none"
             : `0 0 16px color-mix(in srgb, ${color} 30%, transparent)`,
-        textDecoration: status === 'remove' ? 'line-through' : 'none',
+        textDecoration: status === "remove" ? "line-through" : "none",
       }}
     >
-      <span className="text-[var(--color-brand-2)]">&lt;{node.tag}&gt;</span>
-      {node.keyLabel && (
-        <span className="text-[var(--color-micro)]">key={node.keyLabel}</span>
-      )}
-      {node.prop && <span className="text-[var(--color-muted)]">{node.prop}</span>}
-      {node.text && <span className="text-[var(--color-ink)]">{node.text}</span>}
+      <span className="text-brand-2">&lt;{node.tag}&gt;</span>
+      {node.keyLabel && <span className="text-micro">key={node.keyLabel}</span>}
+      {node.prop && <span className="text-muted">{node.prop}</span>}
+      {node.text && <span className="text-ink">{node.text}</span>}
       {tag && (
         <span
           className="ml-1 rounded px-1 text-[10px] font-semibold uppercase"
-          style={{ background: color, color: '#0b0f1a' }}
+          style={{ background: color, color: "#0b0f1a" }}
         >
           {tag}
         </span>
       )}
     </motion.div>
-  )
+  );
 }
 
 function TreeNode({ node }: { node: VNode }) {
-  const hasChildren = node.children && node.children.length > 0
+  const hasChildren = node.children && node.children.length > 0;
   return (
     <motion.div layout className="flex flex-col items-start">
       <NodeBox node={node} />
       {hasChildren && (
-        <div className="ml-4 mt-2 flex flex-col gap-2 border-l border-dashed border-[var(--color-border)] pl-4">
+        <div className="ml-4 mt-2 flex flex-col gap-2 border-l border-dashed border-border] pl-4">
           <AnimatePresence mode="popLayout">
             {node.children!.map((child) => (
               <TreeNode key={child.id} node={child} />
@@ -93,7 +94,7 @@ function TreeNode({ node }: { node: VNode }) {
         </div>
       )}
     </motion.div>
-  )
+  );
 }
 
 /** Renders a virtual-DOM tree with per-node status coloring and layout animation. */
@@ -104,5 +105,5 @@ export default function VTree({ root }: { root: VNode | null }) {
         {root && <TreeNode key={root.id} node={root} />}
       </AnimatePresence>
     </div>
-  )
+  );
 }

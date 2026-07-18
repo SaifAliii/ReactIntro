@@ -2,10 +2,12 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button, Segmented } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import LessonLayout from "@/components/LessonLayout";
 import AnimationStage from "@/components/AnimationStage";
 import CodeBlock from "@/components/CodeBlock";
 import { Callout, Legend, LegendItem, Section } from "@/components/ui";
+import T from "@/i18n/T";
 
 interface Item {
   id: number;
@@ -32,11 +34,12 @@ function List({
   touched: Set<number>;
   opKey: number;
 }) {
-  const touchedCount = mode === "index" ? touched.size : touched.size;
+  const { t } = useTranslation();
+  const touchedCount = touched.size;
   return (
     <div className="flex min-w-0 flex-col">
       <div className="mb-2 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between">
-        <span className="font-mono text-sm text-[var(--color-ink)]">
+        <span className="font-mono text-sm text-ink">
           key={mode === "index" ? "{index}" : "{item.id}"}
         </span>
         <span
@@ -45,7 +48,7 @@ function List({
             color: touchedCount > 1 ? "var(--color-warn)" : "var(--color-ok)",
           }}
         >
-          {opKey === 0 ? "—" : `${touchedCount} touched`}
+          {opKey === 0 ? "—" : t("lessons.keys.touched", { n: touchedCount })}
         </span>
       </div>
       <div className="flex flex-col gap-2">
@@ -77,13 +80,15 @@ function List({
                   />
                 )}
                 <span className="relative flex items-center justify-between">
-                  <span className="text-[var(--color-ink)]">{item.label}</span>
+                  <span className="text-ink">{item.label}</span>
                   {opKey > 0 && (
                     <span
                       className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase"
                       style={{ color, border: `1px solid ${color}` }}
                     >
-                      {isTouched ? "updated" : "reused"}
+                      {isTouched
+                        ? t("lessons.keys.updated")
+                        : t("lessons.keys.reused")}
                     </span>
                   )}
                 </span>
@@ -97,6 +102,7 @@ function List({
 }
 
 export default function KeysLesson() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<Item[]>(initial);
   const [nextId, setNextId] = useState(4);
   const [opKey, setOpKey] = useState(0);
@@ -130,32 +136,26 @@ export default function KeysLesson() {
     <LessonLayout slug="keys">
       <Section>
         <p>
-          When React diffs a list, it needs to know which new item corresponds
-          to which old one. A <code>key</code> is that identity tag. Use the
-          array <em>index</em> and inserting at the top shifts every item to a
-          new index, so React thinks <em>every</em> row changed. Use a{" "}
-          <em>stable id</em> and React matches rows correctly, touching only the
-          one that actually moved.
+          <T k="lessons.keys.intro1" />
         </p>
         <p>
-          Click <strong>Add to top</strong> and watch how many DOM nodes each
-          strategy has to update.
+          <T k="lessons.keys.intro2" />
         </p>
       </Section>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="primary" icon={<PlusOutlined />} onClick={prepend}>
-          Add to top
+          {t("lessons.keys.addToTop")}
         </Button>
         <Button icon={<ReloadOutlined />} onClick={reset}>
-          Reset
+          {t("lessons.keys.reset")}
         </Button>
         <Segmented<KeyMode>
           value={highlight}
           onChange={setHighlight}
           options={[
-            { label: "Focus: index key", value: "index" },
-            { label: "Focus: id key", value: "id" },
+            { label: t("lessons.keys.focusIndex"), value: "index" },
+            { label: t("lessons.keys.focusId"), value: "id" },
           ]}
           className="ml-auto [&>.ant-segmented-group]:gap-3"
         />
@@ -166,7 +166,7 @@ export default function KeysLesson() {
           <div
             className={
               highlight === "index"
-                ? "rounded-xl ring-1 ring-[var(--color-warn)]/40 p-2"
+                ? "rounded-xl ring-1 ring-warn/40 p-2"
                 : "p-2 opacity-70"
             }
           >
@@ -180,7 +180,7 @@ export default function KeysLesson() {
           <div
             className={
               highlight === "id"
-                ? "rounded-xl ring-1 ring-[var(--color-ok)]/40 p-2"
+                ? "rounded-xl ring-1 ring-ok/40 p-2"
                 : "p-2 opacity-70"
             }
           >
@@ -192,9 +192,12 @@ export default function KeysLesson() {
       <Legend>
         <LegendItem
           color="var(--color-warn)"
-          label="Node React had to update"
+          label={t("lessons.keys.legendUpdate")}
         />
-        <LegendItem color="var(--color-ok)" label="Node React reused as-is" />
+        <LegendItem
+          color="var(--color-ok)"
+          label={t("lessons.keys.legendReuse")}
+        />
       </Legend>
 
       <CodeBlock
@@ -205,10 +208,8 @@ export default function KeysLesson() {
 {items.map((item) => <Row key={item.id} {...item} />)}`}
       />
 
-      <Callout kind="warn" title="Rule of thumb">
-        Never use the array index as a key for a list that can reorder, filter
-        or grow at the top. Reach for a stable, unique id from your data. Index
-        keys are only safe for a static list that never changes order.
+      <Callout kind="warn" title={t("lessons.keys.calloutTitle")}>
+        <T k="lessons.keys.calloutBody" />
       </Callout>
     </LessonLayout>
   );

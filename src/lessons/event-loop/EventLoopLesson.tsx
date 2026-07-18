@@ -4,23 +4,23 @@ import StepControls from '@/components/StepControls'
 import CodeBlock from '@/components/CodeBlock'
 import { Callout, Legend, LegendItem, Section } from '@/components/ui'
 import { useStepPlayer } from '@/components/useStepPlayer'
+import T, { useT } from '@/i18n/T'
 import EventLoopViz from './EventLoopViz'
-import { eventLoopCode, eventLoopLabels, eventLoopSteps } from './steps'
+import { eventLoopCode, eventLoopSteps } from './steps'
 
 export default function EventLoopLesson() {
+  const t = useT()
   const player = useStepPlayer(eventLoopSteps.length, { interval: 1400 })
   const state = eventLoopSteps[player.step]
+  const stepLabels = eventLoopSteps.map((_, i) =>
+    i === 0 ? t('common.start') : t('common.tick', { n: i }),
+  )
 
   return (
     <LessonLayout slug="event-loop">
       <Section>
         <p>
-          JavaScript runs on a <strong>single thread</strong> — it can only do
-          one thing at a time. So how does it handle timers, network calls and
-          promises without freezing? The answer is the{' '}
-          <strong className="text-[var(--color-ink)]">event loop</strong>: a
-          coordinator that shuffles work between the call stack, the browser's
-          Web APIs, and two queues.
+          <T k="lessons.event-loop.intro" />
         </p>
       </Section>
 
@@ -33,10 +33,22 @@ export default function EventLoopLesson() {
             highlightLines={state.line ? [state.line] : []}
           />
           <Legend>
-            <LegendItem color="var(--color-stack)" label="Call stack" />
-            <LegendItem color="var(--color-webapi)" label="Web APIs" />
-            <LegendItem color="var(--color-micro)" label="Microtasks" />
-            <LegendItem color="var(--color-macro)" label="Macrotasks" />
+            <LegendItem
+              color="var(--color-stack)"
+              label={t('lessons.event-loop.legendStack')}
+            />
+            <LegendItem
+              color="var(--color-webapi)"
+              label={t('lessons.event-loop.legendWebapi')}
+            />
+            <LegendItem
+              color="var(--color-micro)"
+              label={t('lessons.event-loop.legendMicro')}
+            />
+            <LegendItem
+              color="var(--color-macro)"
+              label={t('lessons.event-loop.legendMacro')}
+            />
           </Legend>
         </div>
 
@@ -45,23 +57,15 @@ export default function EventLoopLesson() {
         </AnimationStage>
       </div>
 
-      <StepControls player={player} stepLabels={eventLoopLabels} />
+      <StepControls player={player} stepLabels={stepLabels} />
 
-      <Callout kind="tip" title="The one rule to remember">
-        When the call stack is empty, the event loop first empties the{' '}
-        <em>entire</em> microtask queue (Promise callbacks), and only then takes{' '}
-        <em>one</em> macrotask (a <code>setTimeout</code>/event callback) — after
-        which it drains microtasks again. That's why the output above is{' '}
-        <code>1 → 4 → 3 → 2</code> even though the timeout was set to 0 ms.
+      <Callout kind="tip" title={t('lessons.event-loop.ruleTitle')}>
+        <T k="lessons.event-loop.ruleBody" />
       </Callout>
 
-      <Section title="Why this matters in React">
+      <Section title={t('lessons.event-loop.whyTitle')}>
         <p>
-          React batches state updates and flushes effects around these same
-          queues. Understanding micro- vs macro-tasks explains why a{' '}
-          <code>setState</code> inside a promise behaves differently from one
-          inside a <code>setTimeout</code>, and why{' '}
-          <code>useLayoutEffect</code> can run before the browser ever paints.
+          <T k="lessons.event-loop.whyBody" />
         </p>
       </Section>
     </LessonLayout>

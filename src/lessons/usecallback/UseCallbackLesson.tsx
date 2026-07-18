@@ -1,21 +1,24 @@
-import { memo, useCallback, useRef, useState } from 'react'
-import { Button } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
-import LessonLayout from '@/components/LessonLayout'
-import AnimationStage from '@/components/AnimationStage'
-import CodeBlock from '@/components/CodeBlock'
-import { Callout, Section } from '@/components/ui'
-import RenderPulse, { useRenderCount } from '../_shared/RenderPulse'
+import { memo, useCallback, useRef, useState } from "react";
+import { Button } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+import LessonLayout from "@/components/LessonLayout";
+import AnimationStage from "@/components/AnimationStage";
+import CodeBlock from "@/components/CodeBlock";
+import { Callout, Section } from "@/components/ui";
+import T, { useT } from "@/i18n/T";
+import RenderPulse, { useRenderCount } from "../_shared/RenderPulse";
 
 interface ChildProps {
-  title: string
-  onAction: () => void
-  color: string
+  title: string;
+  onAction: () => void;
+  color: string;
 }
 
 // Wrapped in React.memo so it only re-renders when its props actually change.
 const MemoChild = memo(function MemoChild({ title, color }: ChildProps) {
-  const renders = useRenderCount()
+  const { t } = useTranslation();
+  const renders = useRenderCount();
   return (
     <div
       className="flex flex-col gap-3 rounded-xl border p-4"
@@ -24,44 +27,43 @@ const MemoChild = memo(function MemoChild({ title, color }: ChildProps) {
       <div className="text-sm font-bold" style={{ color }}>
         {title}
       </div>
-      <RenderPulse count={renders} label="child renders" color={color} />
+      <RenderPulse
+        count={renders}
+        label={t("lessons.usecallback.childRenders")}
+        color={color}
+      />
     </div>
-  )
-})
+  );
+});
 
 export default function UseCallbackLesson() {
-  const [, setTick] = useState(0)
+  const t = useT();
+  const [, setTick] = useState(0);
 
   // Recreated on every render → a brand-new function identity each time.
-  const unstable = () => {}
+  const unstable = () => {};
   // Memoized → the exact same function reference across renders.
-  const stable = useCallback(() => {}, [])
+  const stable = useCallback(() => {}, []);
 
   // Track how often each identity actually changes.
-  const unstableId = useRef(0)
-  const prevUnstable = useRef<() => void>(unstable)
+  const unstableId = useRef(0);
+  const prevUnstable = useRef<() => void>(unstable);
   if (prevUnstable.current !== unstable) {
-    unstableId.current += 1
-    prevUnstable.current = unstable
+    unstableId.current += 1;
+    prevUnstable.current = unstable;
   }
-  const stableId = useRef(0)
-  const prevStable = useRef<() => void>(stable)
+  const stableId = useRef(0);
+  const prevStable = useRef<() => void>(stable);
   if (prevStable.current !== stable) {
-    stableId.current += 1
-    prevStable.current = stable
+    stableId.current += 1;
+    prevStable.current = stable;
   }
 
   return (
     <LessonLayout slug="usecallback">
       <Section>
         <p>
-          Every render creates fresh function objects. Usually that&apos;s
-          harmless — but if you pass a function as a prop to a{' '}
-          <code>React.memo</code> child, a new function each render looks like a{' '}
-          <em>changed prop</em>, so the child re-renders anyway.{' '}
-          <code>useCallback(fn, deps)</code> hands you back the{' '}
-          <strong className="text-[var(--color-ink)]">same function
-          reference</strong> until a dependency changes.
+          <T k="lessons.usecallback.intro" />
         </p>
       </Section>
 
@@ -69,41 +71,41 @@ export default function UseCallbackLesson() {
         <Button
           type="primary"
           icon={<ReloadOutlined />}
-          onClick={() => setTick((t) => t + 1)}
+          onClick={() => setTick((v) => v + 1)}
         >
-          Re-render the parent
+          {t("lessons.usecallback.reRenderParent")}
         </Button>
-        <span className="text-sm text-[var(--color-muted)]">
-          Each click re-renders the parent. Watch which child follows along.
+        <span className="text-sm text-muted">
+          {t("lessons.usecallback.hint")}
         </span>
       </div>
 
       <AnimationStage minH={230}>
         <div className="grid h-full grid-cols-1 gap-4 md:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <div className="text-xs text-[var(--color-muted)]">
-              handler identity id:{' '}
-              <span className="font-mono font-bold text-[var(--color-warn)]">
+            <div className="text-xs text-muted">
+              {t("lessons.usecallback.identityLabel")}{" "}
+              <span className="font-mono font-bold text-warn">
                 #{unstableId.current}
-              </span>{' '}
-              (changes every render)
+              </span>{" "}
+              {t("lessons.usecallback.changesEvery")}
             </div>
             <MemoChild
-              title="Child with plain function prop"
+              title={t("lessons.usecallback.childPlain")}
               onAction={unstable}
               color="var(--color-warn)"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="text-xs text-[var(--color-muted)]">
-              handler identity id:{' '}
-              <span className="font-mono font-bold text-[var(--color-ok)]">
+            <div className="text-xs text-muted">
+              {t("lessons.usecallback.identityLabel")}{" "}
+              <span className="font-mono font-bold text-ok">
                 #{stableId.current}
-              </span>{' '}
-              (stable)
+              </span>{" "}
+              {t("lessons.usecallback.stable")}
             </div>
             <MemoChild
-              title="Child with useCallback prop"
+              title={t("lessons.usecallback.childMemo")}
               onAction={stable}
               color="var(--color-ok)"
             />
@@ -111,11 +113,8 @@ export default function UseCallbackLesson() {
         </div>
       </AnimationStage>
 
-      <Callout kind="tip" title="What you should see">
-        The left child&apos;s render count climbs with every parent render — its
-        function prop is different each time. The right child stays put:{' '}
-        <code>useCallback</code> kept the reference identical, so{' '}
-        <code>React.memo</code> could skip it.
+      <Callout kind="tip" title={t("lessons.usecallback.callout1Title")}>
+        <T k="lessons.usecallback.callout1Body" />
       </Callout>
 
       <CodeBlock
@@ -129,12 +128,9 @@ const handleClick = useCallback(() => doThing(id), [id])
         language="tsx"
       />
 
-      <Callout kind="warn" title="Don't sprinkle it everywhere">
-        <code>useCallback</code> only pays off when the function is a dependency
-        of something (a <code>memo</code> child, a <code>useEffect</code>, or
-        another hook). Wrapping every handler adds memory and complexity for no
-        benefit. Measure first.
+      <Callout kind="warn" title={t("lessons.usecallback.callout2Title")}>
+        <T k="lessons.usecallback.callout2Body" />
       </Callout>
     </LessonLayout>
-  )
+  );
 }

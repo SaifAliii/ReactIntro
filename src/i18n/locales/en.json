@@ -1,0 +1,295 @@
+{
+  "brand": {
+    "namePart1": "React",
+    "namePart2": "Internals",
+    "sub": "& the JS Event Loop"
+  },
+  "common": {
+    "play": "Play",
+    "pause": "Pause",
+    "replay": "Replay",
+    "reset": "Reset",
+    "nextStep": "Next step",
+    "prevStep": "Previous step",
+    "step": "Step {{current}} / {{total}}",
+    "start": "Start",
+    "tick": "Tick {{n}}"
+  },
+  "groups": {
+    "JavaScript": "JavaScript",
+    "React Rendering": "React Rendering",
+    "React Hooks": "React Hooks"
+  },
+  "home": {
+    "badge": "Interactive · Animated · No fluff",
+    "title": "See how React really works",
+    "subtitle": "Watch the JavaScript event loop tick, virtual DOM trees diff, keys match up and hooks fire — all as step-by-step animations you control.",
+    "cta": "Start with the Event Loop",
+    "openLesson": "Open lesson"
+  },
+  "viz": {
+    "eventLoop": {
+      "badgeRunning": "Event Loop running",
+      "badgeIdle": "Event Loop idle",
+      "hint": "microtasks drain fully before each macrotask",
+      "console": "Console",
+      "stackTitle": "Call Stack",
+      "stackHint": "LIFO",
+      "webapiTitle": "Web APIs",
+      "webapiHint": "browser",
+      "microTitle": "Microtask Queue",
+      "microHint": "Promises · high priority",
+      "macroTitle": "Macrotask Queue",
+      "macroHint": "setTimeout · events"
+    },
+    "vtree": {
+      "added": "added",
+      "removed": "removed",
+      "changed": "changed",
+      "moved": "moved"
+    },
+    "propFlow": {
+      "justForwards": "just forwards ↓",
+      "skipped": "skipped",
+      "consumed": "Hi, Ada 👋",
+      "ownsUser": "owns the user state",
+      "needsUser": "needs user.name"
+    }
+  },
+  "lessons": {
+    "event-loop": {
+      "title": "The JS Event Loop",
+      "tagline": "Call stack, Web APIs, macro & micro task queues — animated.",
+      "intro": "JavaScript runs on a <strong>single thread</strong> — it can only do one thing at a time. So how does it handle timers, network calls and promises without freezing? The answer is the <strong>event loop</strong>: a coordinator that shuffles work between the call stack, the browser's Web APIs, and two queues.",
+      "legendStack": "Call stack",
+      "legendWebapi": "Web APIs",
+      "legendMicro": "Microtasks",
+      "legendMacro": "Macrotasks",
+      "ruleTitle": "The one rule to remember",
+      "ruleBody": "When the call stack is empty, the event loop first empties the <em>entire</em> microtask queue (Promise callbacks), and only then takes <em>one</em> macrotask (a <code>setTimeout</code>/event callback) — after which it drains microtasks again. That's why the output above is <code>1 → 4 → 3 → 2</code> even though the timeout was set to 0 ms.",
+      "whyTitle": "Why this matters in React",
+      "whyBody": "React batches state updates and flushes effects around these same queues. Understanding micro- vs macro-tasks explains why a <code>setState</code> inside a promise behaves differently from one inside a <code>setTimeout</code>, and why <code>useLayoutEffect</code> can run before the browser ever paints."
+    },
+    "virtual-dom": {
+      "title": "Virtual DOM",
+      "tagline": "How JSX becomes a lightweight tree React can reason about.",
+      "intro": "When you write JSX, the browser never sees it. A compiler (Babel or the TypeScript/SWC toolchain) rewrites every tag into a <code>React.createElement</code> call, which returns an ordinary <strong>JavaScript object</strong>. Nest those objects and you get a tree — the <strong>Virtual DOM</strong>: a cheap, in-memory description of what the UI should look like.",
+      "stageLabel": "Virtual DOM tree",
+      "steps": [
+        "A component is just a function that returns JSX.",
+        "The compiler turns each JSX tag into a plain JS object node.",
+        "Children become nested objects — a whole tree in memory.",
+        "This lightweight object tree is the Virtual DOM. No real DOM yet!"
+      ],
+      "calloutTitle": "Why keep a copy in memory?",
+      "calloutBody": "Touching the real DOM is slow. By building and comparing these lightweight objects first, React can figure out the <em>smallest</em> set of real DOM operations before it touches the page — which is exactly what the next lessons show."
+    },
+    "reconciliation": {
+      "title": "Reconciliation & Diffing",
+      "tagline": "Comparing two virtual trees to find the minimal change.",
+      "intro": "On every render React produces a brand-new Virtual DOM tree. Instead of throwing away the page and rebuilding it, it <strong>diffs</strong> the new tree against the previous one. This comparison — called <strong>reconciliation</strong> — walks both trees together and records the minimal list of changes.",
+      "previousTree": "Previous tree",
+      "newTree": "New tree",
+      "steps": [
+        "React holds the previous tree and compares it against the freshly rendered one.",
+        "Compare the roots: <ul> vs <ul> — same type, so reuse the node.",
+        "Child 1: <li>Buy milk</li> is identical in both. Nothing to do.",
+        "Child 2: same <li>, but the text changed \"dog\" → \"cat\". Patch the text.",
+        "Child 3: <li>Read book</li> exists only in the new tree → insert it.",
+        "Done. From a whole re-render React derived just 1 text patch + 1 insert."
+      ],
+      "legendComparing": "Comparing now",
+      "legendChanged": "Text/props changed",
+      "legendInserted": "Inserted",
+      "legendReused": "Reused (no change)",
+      "calloutTitle": "Two key heuristics",
+      "calloutBody": "React's diff is O(n) because it assumes: (1) two elements of <em>different types</em> produce different trees (so it replaces the whole subtree), and (2) children can be matched across renders with a stable <code>key</code> — the subject of the next lesson."
+    },
+    "keys": {
+      "title": "The Role of Keys",
+      "tagline": "Why keys make list diffing correct and cheap.",
+      "intro1": "When React diffs a list, it needs to know which new item corresponds to which old one. A <code>key</code> is that identity tag. Use the array <em>index</em> and inserting at the top shifts every item to a new index, so React thinks <em>every</em> row changed. Use a <em>stable id</em> and React matches rows correctly, touching only the one that actually moved.",
+      "intro2": "Click <strong>Add to top</strong> and watch how many DOM nodes each strategy has to update.",
+      "addToTop": "Add to top",
+      "reset": "Reset",
+      "focusIndex": "Focus: index key",
+      "focusId": "Focus: id key",
+      "touched": "{{n}} touched",
+      "updated": "updated",
+      "reused": "reused",
+      "legendUpdate": "Node React had to update",
+      "legendReuse": "Node React reused as-is",
+      "calloutTitle": "Rule of thumb",
+      "calloutBody": "Never use the array index as a key for a list that can reorder, filter or grow at the top. Reach for a stable, unique id from your data. Index keys are only safe for a static list that never changes order."
+    },
+    "commit": {
+      "title": "Committing to the Real DOM",
+      "tagline": "Only the changed node is touched in the actual DOM.",
+      "intro": "Diffing happens in the <strong>render phase</strong> and produces a list of changes — but nothing is on screen yet. In the <strong>commit phase</strong> React applies exactly those changes to the real DOM, and <strong>only</strong> those. A one-character text change becomes a single <code>textContent</code> assignment — not a rebuild of the card.",
+      "phaseLabel": "Phase:",
+      "phaseIdle": "Idle",
+      "phaseRender": "Render phase",
+      "phaseDiff": "Reconciliation",
+      "phaseCommit": "Commit phase",
+      "phaseDone": "Painted",
+      "vdomLabel": "Virtual DOM (new render)",
+      "realLabel": "Real DOM (on the page)",
+      "mutated": "mutated",
+      "untouched": "untouched",
+      "steps": [
+        "Starting point: the Virtual DOM and the real DOM agree. Count is 0.",
+        "setCount(1) runs. React re-renders the component into a new tree.",
+        "Diff (reconciliation): only the <p> text differs — everything else matches.",
+        "Commit: React runs ONE operation — p.textContent = \"Count: 1\".",
+        "Done. The <div>, <h1> and <button> DOM nodes were never touched."
+      ],
+      "calloutTitle": "Render ≠ DOM update",
+      "calloutBody": "A component \"re-rendering\" only means React <em>called your function</em> and rebuilt a virtual tree. That's cheap. The expensive part — touching the DOM — is kept to the minimum diff. This is why unnecessary renders are usually fine, but not free (the next lessons show how to avoid them)."
+    },
+    "state-render": {
+      "title": "State → Re-render",
+      "tagline": "How setState kicks off render, diff and commit.",
+      "intro": "State is React's memory. When you call a state setter like <code>setCount</code>, you're not just changing a variable — you are <strong>scheduling a re-render</strong>. React then runs a four-stage pipeline to get that new state onto the screen.",
+      "button": "Call setCount({{from}} → {{to}})",
+      "rendersLabel": "component renders",
+      "countLabel": "count = ",
+      "stageTitles": ["1 · Trigger", "2 · Render", "3 · Reconcile", "4 · Commit"],
+      "stageDescs": [
+        "setState is called",
+        "React calls your component",
+        "diff new vs old tree",
+        "apply changes to the DOM"
+      ],
+      "calloutTitle": "Renders are cheap; commits are targeted",
+      "calloutBody": "The render counter climbs by exactly one per click — one <code>setCount</code> schedules one re-render of this component. (The four-stage animation runs inside a separate child component, so its own updates don't inflate the count.) Yet, as the previous lessons showed, React still only touches the single DOM text node that changed."
+    },
+    "usestate-vs-useref": {
+      "title": "useState vs useRef",
+      "tagline": "One re-renders, one quietly remembers.",
+      "intro": "Both <code>useState</code> and <code>useRef</code> let a component remember a value between renders. The difference is what happens when you change it: updating <strong>state re-renders</strong> the component, while mutating a <strong>ref does not</strong>. A ref is a plain, mutable box (<code>{ current }</code>) that survives renders without triggering them.",
+      "rendersLabel": "component renders",
+      "forceRender": "Force a re-render",
+      "useStateTitle": "useState",
+      "useRefTitle": "useRef",
+      "stateHint": "▲ updating this re-renders → the UI always matches",
+      "refHint": "▲ this value is live in memory, but the screen only catches up on the next render",
+      "stateBtn": "setStateCount(+1)",
+      "refBtn": "refCount.current++",
+      "calloutTitle": "Try this",
+      "calloutBody": "Click <strong>refCount.current++</strong> a few times — the big number won't move, because no render happened. Now click <strong>Force a re-render</strong> and the ref's real, accumulated value suddenly appears. The value was changing all along; React just had no reason to repaint.",
+      "whenTitle": "When to reach for a ref",
+      "whenBody": "Use a ref for values that shouldn't drive the UI: a DOM node (<code>ref={inputRef}</code>), a timer/interval id, the previous value of a prop, or any mutable bookkeeping. Use state whenever the value should be <em>shown</em> and kept in sync on screen."
+    },
+    "usecallback": {
+      "title": "useCallback",
+      "tagline": "Keeping a function identity stable across renders.",
+      "intro": "Every render creates fresh function objects. Usually that's harmless — but if you pass a function as a prop to a <code>React.memo</code> child, a new function each render looks like a <em>changed prop</em>, so the child re-renders anyway. <code>useCallback(fn, deps)</code> hands you back the <strong>same function reference</strong> until a dependency changes.",
+      "reRenderParent": "Re-render the parent",
+      "hint": "Each click re-renders the parent. Watch which child follows along.",
+      "identityLabel": "handler identity id:",
+      "changesEvery": "(changes every render)",
+      "stable": "(stable)",
+      "childPlain": "Child with plain function prop",
+      "childMemo": "Child with useCallback prop",
+      "childRenders": "child renders",
+      "callout1Title": "What you should see",
+      "callout1Body": "The left child's render count climbs with every parent render — its function prop is different each time. The right child stays put: <code>useCallback</code> kept the reference identical, so <code>React.memo</code> could skip it.",
+      "callout2Title": "Don't sprinkle it everywhere",
+      "callout2Body": "<code>useCallback</code> only pays off when the function is a dependency of something (a <code>memo</code> child, a <code>useEffect</code>, or another hook). Wrapping every handler adds memory and complexity for no benefit. Measure first."
+    },
+    "usememo": {
+      "title": "useMemo",
+      "tagline": "Caching an expensive computation between renders.",
+      "intro": "Where <code>useCallback</code> caches a <em>function</em>, <code>useMemo</code> caches a <em>value</em>. If a computation is expensive, you don't want to redo it on every render — only when its inputs change. <code>useMemo(() => compute(x), [x])</code> remembers the last result and returns it untouched until <code>x</code> changes.",
+      "inputN": "Input n =",
+      "reRenderUnrelated": "Re-render (unrelated state)",
+      "componentRenders": "component renders",
+      "withoutTitle": "Without useMemo",
+      "withTitle": "With useMemo (deps: [n])",
+      "withoutDesc": "times the slow function ran — climbs on <em>every</em> render, even unrelated ones",
+      "withDescPrefix": "only ran when <code>n</code> changed. Result: ",
+      "calloutTitle": "Try it",
+      "calloutBody": "Click <strong>Re-render (unrelated state)</strong> repeatedly: the left counter races ahead while the right one stays flat. Now change <strong>n</strong> — both tick up once, because the cached value's dependency actually changed.",
+      "vsTitle": "Memo vs. Callback",
+      "vsBody": "They're the same idea. In fact <code>useCallback(fn, deps)</code> is just <code>useMemo(() => fn, deps)</code>. Use <code>useMemo</code> for computed data (a filtered list, a derived object) and <code>useCallback</code> for the function you'll pass down."
+    },
+    "react-memo": {
+      "title": "React.memo",
+      "tagline": "Skip a child render when its props did not change.",
+      "intro": "By default, when a component re-renders, <em>all</em> of its children re-render too — even if their props are identical. <code>React.memo(Component)</code> wraps a component so React first does a <strong>shallow compare of its props</strong>; if nothing changed, it reuses the previous result and skips rendering that subtree.",
+      "plainTitle": "Plain child",
+      "memoTitle": "React.memo child",
+      "propValue": "prop value = ",
+      "childRenders": "child renders",
+      "plainHint": "re-renders whenever the parent does",
+      "memoHint": "re-renders only when <code>value</code> changes",
+      "changeUnrelated": "Change unrelated parent state",
+      "changeProp": "Change the child's prop (value +1)",
+      "parentRenders": "parent renders",
+      "callout1Title": "Two buttons, two outcomes",
+      "callout1Body": "<strong>Change unrelated parent state:</strong> the parent and the plain child re-render, but the memo child does not — its <code>value</code> prop is unchanged. <br /><strong>Change the child's prop:</strong> now <code>value</code> differs, so even the memo child re-renders. That's the point — it skips <em>unnecessary</em> renders, not necessary ones.",
+      "callout2Title": "Gotcha: object & function props",
+      "callout2Body": "<code>React.memo</code> compares props <em>shallowly</em>. If you pass a new object, array, or inline function each render, the memo \"breaks\" because the reference differs every time. That's exactly where <code>useMemo</code> and <code>useCallback</code> come in — they keep those references stable so <code>memo</code> can do its job."
+    },
+    "effect-vs-layouteffect": {
+      "title": "useEffect vs useLayoutEffect",
+      "tagline": "Timing relative to the browser paint.",
+      "intro": "Both hooks run <em>after</em> render, but on opposite sides of the browser paint. <code>useLayoutEffect</code> fires <strong>synchronously before the browser paints</strong> — so DOM measurements and corrections happen invisibly. <code>useEffect</code> fires <strong>after paint</strong>, so any DOM change it makes can cause a visible flicker.",
+      "orderLabel": "Order of operations",
+      "timelineLabels": ["Render", "Commit", "useLayoutEffect", "🖼 Browser paint", "useEffect"],
+      "timelineDescs": [
+        "React builds the new tree",
+        "React mutates the DOM",
+        "fires synchronously — BEFORE paint",
+        "pixels hit the screen",
+        "fires asynchronously — AFTER paint"
+      ],
+      "seeFlickerTitle": "See the flicker",
+      "seeFlickerBody": "Below, a box mounts at the left edge and an effect moves it to the right. With <code>useEffect</code> the browser can paint the box at the wrong spot first (a flash). With <code>useLayoutEffect</code> the move happens before paint, so you only ever see the final position. Switch modes and hit replay.",
+      "segEffect": "useEffect (after paint)",
+      "segLayout": "useLayoutEffect (before paint)",
+      "replay": "Replay mount",
+      "targetLabel": "target →",
+      "calloutTitle": "Which should I use?",
+      "calloutBody": "Default to <code>useEffect</code> — it doesn't block painting, so it keeps the UI responsive. Reach for <code>useLayoutEffect</code> only when you must read layout (size/position) and synchronously re-adjust the DOM to avoid a visible jump: tooltips, measuring, scroll restoration."
+    },
+    "prop-drilling": {
+      "title": "Prop Drilling & Context",
+      "tagline": "Threading a prop through layers — and how Context skips them.",
+      "intro": "<strong>Prop drilling</strong> is what happens when a piece of data lives high in the tree but is only needed deep down. To get it there, you have to thread it as a prop through every component in between — even though those middle components don't use it at all. It works, but it makes the intermediate components noisy and awkward to refactor.",
+      "segDrilling": "① Prop drilling (the problem)",
+      "segContext": "② Context (the fix)",
+      "watchDrilling": "Watch the prop pass through every layer.",
+      "watchContext": "Context sends it straight to the consumer.",
+      "stageDrilling": "Prop drilling",
+      "stageContext": "React Context",
+      "steps": [
+        "App owns the user data",
+        "Passed down to Dashboard…",
+        "…which forwards it to Sidebar…",
+        "…which forwards it to ProfileMenu…",
+        "Finally Avatar receives and uses it"
+      ],
+      "problemLabel": "The problem — drilling",
+      "fixLabel": "The fix — Context",
+      "callout1Title": "When drilling is fine — and when it isn't",
+      "callout1Body": "Passing a prop down one or two levels is perfectly normal; don't reach for Context immediately. Drilling becomes a smell when the same prop travels through several components that only relay it, or when adding a new consumer means editing a long chain. Then a shared <code>Context</code> (or a state library) keeps the middle layers clean.",
+      "callout2Title": "Context isn't free either",
+      "callout2Body": "Every component that calls <code>useContext</code> re-renders whenever the context value changes. For values that update very often, prefer splitting contexts, memoizing the value, or composing components (passing JSX as <code>children</code>) so you drill less without a global store."
+    },
+    "hoc": {
+      "title": "Higher-Order Components",
+      "tagline": "A function that wraps a component to add behavior.",
+      "intro": "A <strong>Higher-Order Component</strong> is just a function that takes a component and returns a new one with extra behavior wrapped around it — the component equivalent of a decorator. The pattern: <code>const Enhanced = withSomething(Base)</code>. React's own <code>React.memo</code> is an HOC, as were <code>connect()</code> (Redux) and <code>withRouter</code>.",
+      "wrapLabel": "withLoading( Profile )",
+      "wrapCaption": "withLoading( ) — adds loading behavior + passes props through",
+      "profileNote": "Profile (unchanged, unaware it's wrapped)",
+      "inActionTitle": "The enhanced component in action",
+      "inActionBody": "<code>ProfileWithLoading</code> understands a new <code>loading</code> prop that plain <code>Profile</code> knows nothing about. Toggle it:",
+      "segFalse": "loading = false",
+      "segTrue": "loading = true",
+      "calloutTitle": "HOCs today: hooks usually win",
+      "calloutBody": "Most things HOCs were used for — sharing logic, injecting data, cross-cutting behavior — are now done more simply with <strong>custom hooks</strong> (e.g. a <code>useLoading()</code> hook instead of <code>withLoading</code>). HOCs are still worth knowing: you'll meet them in libraries, and <code>React.memo</code> is one you'll use constantly."
+    }
+  }
+}

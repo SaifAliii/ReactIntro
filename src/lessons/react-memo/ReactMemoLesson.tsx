@@ -1,74 +1,87 @@
-import { memo, useState } from 'react'
-import { Button } from 'antd'
-import LessonLayout from '@/components/LessonLayout'
-import AnimationStage from '@/components/AnimationStage'
-import CodeBlock from '@/components/CodeBlock'
-import { Callout, Section } from '@/components/ui'
-import RenderPulse, { useRenderCount } from '../_shared/RenderPulse'
+import { memo, useState } from "react";
+import { Button } from "antd";
+import { useTranslation } from "react-i18next";
+import LessonLayout from "@/components/LessonLayout";
+import AnimationStage from "@/components/AnimationStage";
+import CodeBlock from "@/components/CodeBlock";
+import { Callout, Section } from "@/components/ui";
+import T, { useT } from "@/i18n/T";
+import RenderPulse, { useRenderCount } from "../_shared/RenderPulse";
 
 function PlainChild({ value }: { value: number }) {
-  const renders = useRenderCount()
+  const { t } = useTranslation();
+  const renders = useRenderCount();
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-warn)]/50 bg-[var(--color-warn)]/8 p-5">
-      <div className="text-sm font-bold text-[var(--color-warn)]">
-        Plain child
+    <div className="flex flex-col gap-3 rounded-xl border border-warn/50 bg-warn/8 p-5">
+      <div className="text-sm font-bold text-warn">
+        {t("lessons.react-memo.plainTitle")}
       </div>
-      <div className="text-xs text-[var(--color-muted)]">
-        prop value = <span className="font-mono">{value}</span>
+      <div className="text-xs text-muted">
+        {t("lessons.react-memo.propValue")}
+        <span className="font-mono">{value}</span>
       </div>
-      <RenderPulse count={renders} label="child renders" color="var(--color-warn)" />
-      <div className="text-xs text-[var(--color-warn)]">
-        re-renders whenever the parent does
+      <RenderPulse
+        count={renders}
+        label={t("lessons.react-memo.childRenders")}
+        color="var(--color-warn)"
+      />
+      <div className="text-xs text-warn">
+        {t("lessons.react-memo.plainHint")}
       </div>
     </div>
-  )
+  );
 }
 
 // Identical child, but wrapped in React.memo.
 const MemoChild = memo(function MemoChild({ value }: { value: number }) {
-  const renders = useRenderCount()
+  const { t } = useTranslation();
+  const renders = useRenderCount();
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[var(--color-ok)]/50 bg-[var(--color-ok)]/8 p-5">
-      <div className="text-sm font-bold text-[var(--color-ok)]">
-        React.memo child
+    <div className="flex flex-col gap-3 rounded-xl border border-ok/50 bg-ok/8 p-5">
+      <div className="text-sm font-bold text-ok">
+        {t("lessons.react-memo.memoTitle")}
       </div>
-      <div className="text-xs text-[var(--color-muted)]">
-        prop value = <span className="font-mono">{value}</span>
+      <div className="text-xs text-muted">
+        {t("lessons.react-memo.propValue")}
+        <span className="font-mono">{value}</span>
       </div>
-      <RenderPulse count={renders} label="child renders" color="var(--color-ok)" />
-      <div className="text-xs text-[var(--color-ok)]">
-        re-renders only when <code>value</code> changes
+      <RenderPulse
+        count={renders}
+        label={t("lessons.react-memo.childRenders")}
+        color="var(--color-ok)"
+      />
+      <div className="text-xs text-ok">
+        <T k="lessons.react-memo.memoHint" />
       </div>
     </div>
-  )
-})
+  );
+});
 
 export default function ReactMemoLesson() {
-  const renders = useRenderCount()
-  const [childValue, setChildValue] = useState(0)
-  const [, setUnrelated] = useState(0)
+  const t = useT();
+  const renders = useRenderCount();
+  const [childValue, setChildValue] = useState(0);
+  const [, setUnrelated] = useState(0);
 
   return (
     <LessonLayout slug="react-memo">
       <Section>
         <p>
-          By default, when a component re-renders, <em>all</em> of its children
-          re-render too — even if their props are identical.{' '}
-          <code>React.memo(Component)</code> wraps a component so React first
-          does a <strong className="text-[var(--color-ink)]">shallow compare
-          of its props</strong>; if nothing changed, it reuses the previous
-          result and skips rendering that subtree.
+          <T k="lessons.react-memo.intro" />
         </p>
       </Section>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={() => setUnrelated((n) => n + 1)}>
-          Change unrelated parent state
+          {t("lessons.react-memo.changeUnrelated")}
         </Button>
         <Button type="primary" onClick={() => setChildValue((n) => n + 1)}>
-          Change the child&apos;s prop (value +1)
+          {t("lessons.react-memo.changeProp")}
         </Button>
-        <RenderPulse count={renders} label="parent renders" />
+        <RenderPulse
+          count={renders}
+          label={t("lessons.react-memo.parentRenders")}
+        />
       </div>
 
       <AnimationStage minH={240}>
@@ -78,13 +91,8 @@ export default function ReactMemoLesson() {
         </div>
       </AnimationStage>
 
-      <Callout kind="tip" title="Two buttons, two outcomes">
-        <strong>Change unrelated parent state:</strong> the parent and the plain
-        child re-render, but the memo child does not — its <code>value</code>{' '}
-        prop is unchanged. <br />
-        <strong>Change the child&apos;s prop:</strong> now <code>value</code>{' '}
-        differs, so even the memo child re-renders. That&apos;s the point — it
-        skips <em>unnecessary</em> renders, not necessary ones.
+      <Callout kind="tip" title={t("lessons.react-memo.callout1Title")}>
+        <T k="lessons.react-memo.callout1Body" />
       </Callout>
 
       <CodeBlock
@@ -98,13 +106,9 @@ React.memo(Child, (prev, next) => prev.value === next.value)`}
         language="tsx"
       />
 
-      <Callout kind="warn" title="Gotcha: object & function props">
-        <code>React.memo</code> compares props <em>shallowly</em>. If you pass a
-        new object, array, or inline function each render, the memo &quot;breaks&quot;
-        because the reference differs every time. That&apos;s exactly where{' '}
-        <code>useMemo</code> and <code>useCallback</code> come in — they keep
-        those references stable so <code>memo</code> can do its job.
+      <Callout kind="warn" title={t("lessons.react-memo.callout2Title")}>
+        <T k="lessons.react-memo.callout2Body" />
       </Callout>
     </LessonLayout>
-  )
+  );
 }

@@ -6,15 +6,8 @@ import StepControls from "@/components/StepControls";
 import CodeBlock from "@/components/CodeBlock";
 import { Callout, Section } from "@/components/ui";
 import { useStepPlayer } from "@/components/useStepPlayer";
+import T, { useT } from "@/i18n/T";
 import PropFlowViz, { levels, type Mode } from "./PropFlowViz";
-
-const drillLabels = [
-  "App owns the user data",
-  "Passed down to Dashboard…",
-  "…which forwards it to Sidebar…",
-  "…which forwards it to ProfileMenu…",
-  "Finally Avatar receives and uses it",
-];
 
 const drillingCode = `function App() {
   const [user] = useState({ name: 'Ada' })
@@ -50,19 +43,18 @@ const Avatar = () => {
 }`;
 
 export default function PropDrillingLesson() {
+  const t = useT();
   const [mode, setMode] = useState<Mode>("drilling");
   const player = useStepPlayer(levels.length, { interval: 1300 });
+  const drillLabels = t("lessons.prop-drilling.steps", {
+    returnObjects: true,
+  }) as string[];
 
   return (
     <LessonLayout slug="prop-drilling">
       <Section>
         <p>
-          <strong className="text-[var(--color-ink)]">Prop drilling</strong> is
-          what happens when a piece of data lives high in the tree but is only
-          needed deep down. To get it there, you have to thread it as a prop
-          through every component in between — even though those middle
-          components don&apos;t use it at all. It works, but it makes the
-          intermediate components noisy and awkward to refactor.
+          <T k="lessons.prop-drilling.intro" />
         </p>
       </Section>
 
@@ -75,21 +67,31 @@ export default function PropDrillingLesson() {
               player.reset();
             }}
             options={[
-              { label: "① Prop drilling (the problem)", value: "drilling" },
-              { label: "② Context (the fix)", value: "context" },
+              {
+                label: t("lessons.prop-drilling.segDrilling"),
+                value: "drilling",
+              },
+              {
+                label: t("lessons.prop-drilling.segContext"),
+                value: "context",
+              },
             ]}
             className="[&>.ant-segmented-group]:gap-3"
           />
         </div>
-        <span className="text-sm text-[var(--color-muted)]">
+        <span className="text-sm text-muted">
           {mode === "drilling"
-            ? "Watch the prop pass through every layer."
-            : "Context sends it straight to the consumer."}
+            ? t("lessons.prop-drilling.watchDrilling")
+            : t("lessons.prop-drilling.watchContext")}
         </span>
       </div>
 
       <AnimationStage
-        label={mode === "drilling" ? "Prop drilling" : "React Context"}
+        label={
+          mode === "drilling"
+            ? t("lessons.prop-drilling.stageDrilling")
+            : t("lessons.prop-drilling.stageContext")
+        }
         minH={340}
       >
         <PropFlowViz mode={mode} step={player.step} />
@@ -101,33 +103,25 @@ export default function PropDrillingLesson() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="min-w-0">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-warn)]">
-            The problem — drilling
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-warn">
+            {t("lessons.prop-drilling.problemLabel")}
           </div>
           <CodeBlock code={drillingCode} language="tsx" />
         </div>
         <div className="min-w-0">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-ok)]">
-            The fix — Context
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-ok">
+            {t("lessons.prop-drilling.fixLabel")}
           </div>
           <CodeBlock code={contextCode} language="tsx" />
         </div>
       </div>
 
-      <Callout kind="tip" title="When drilling is fine — and when it isn't">
-        Passing a prop down one or two levels is perfectly normal; don&apos;t
-        reach for Context immediately. Drilling becomes a smell when the same
-        prop travels through several components that only relay it, or when
-        adding a new consumer means editing a long chain. Then a shared{" "}
-        <code>Context</code> (or a state library) keeps the middle layers clean.
+      <Callout kind="tip" title={t("lessons.prop-drilling.callout1Title")}>
+        <T k="lessons.prop-drilling.callout1Body" />
       </Callout>
 
-      <Callout kind="warn" title="Context isn't free either">
-        Every component that calls <code>useContext</code> re-renders whenever
-        the context value changes. For values that update very often, prefer
-        splitting contexts, memoizing the value, or composing components
-        (passing JSX as <code>children</code>) so you drill less without a
-        global store.
+      <Callout kind="warn" title={t("lessons.prop-drilling.callout2Title")}>
+        <T k="lessons.prop-drilling.callout2Body" />
       </Callout>
     </LessonLayout>
   );

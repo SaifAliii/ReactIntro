@@ -1,54 +1,53 @@
-import { useRef, useState } from 'react'
-import { Button } from 'antd'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
-import LessonLayout from '@/components/LessonLayout'
-import AnimationStage from '@/components/AnimationStage'
-import CodeBlock from '@/components/CodeBlock'
-import { Callout, Section } from '@/components/ui'
-import RenderPulse, { useRenderCount } from '../_shared/RenderPulse'
+import { useRef, useState } from "react";
+import { Button } from "antd";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import LessonLayout from "@/components/LessonLayout";
+import AnimationStage from "@/components/AnimationStage";
+import CodeBlock from "@/components/CodeBlock";
+import { Callout, Section } from "@/components/ui";
+import T, { useT } from "@/i18n/T";
+import RenderPulse, { useRenderCount } from "../_shared/RenderPulse";
 
 export default function StateVsRefLesson() {
-  const renders = useRenderCount()
-  const [stateCount, setStateCount] = useState(0)
-  const refCount = useRef(0)
-  const [, forceRender] = useState(0)
+  const t = useT();
+  const renders = useRenderCount();
+  const [stateCount, setStateCount] = useState(0);
+  const refCount = useRef(0);
+  const [, forceRender] = useState(0);
 
   return (
     <LessonLayout slug="usestate-vs-useref">
       <Section>
         <p>
-          Both <code>useState</code> and <code>useRef</code> let a component
-          remember a value between renders. The difference is what happens when
-          you change it: updating <strong className="text-[var(--color-ink)]">
-          state re-renders</strong> the component, while mutating a{' '}
-          <strong className="text-[var(--color-ink)]">ref does not</strong>. A
-          ref is a plain, mutable box (<code>{'{ current }'}</code>) that
-          survives renders without triggering them.
+          <T k="lessons.usestate-vs-useref.intro" />
         </p>
       </Section>
 
       <div className="flex flex-wrap items-center gap-3">
-        <RenderPulse count={renders} label="component renders" />
+        <RenderPulse
+          count={renders}
+          label={t("lessons.usestate-vs-useref.rendersLabel")}
+        />
         <Button
           icon={<ReloadOutlined />}
           onClick={() => forceRender((n) => n + 1)}
         >
-          Force a re-render
+          {t("lessons.usestate-vs-useref.forceRender")}
         </Button>
       </div>
 
       <AnimationStage minH={260}>
         <div className="grid h-full grid-cols-1 gap-4 md:grid-cols-2">
           {/* useState card */}
-          <div className="flex flex-col rounded-xl border border-[var(--color-brand)]/50 bg-[var(--color-brand)]/8 p-5">
-            <div className="text-sm font-bold text-[var(--color-brand)]">
-              useState
+          <div className="flex flex-col rounded-xl border border-(--color-brand)/50 bg-(--color-brand)/8 p-5">
+            <div className="text-sm font-bold text-(--color-brand)">
+              {t("lessons.usestate-vs-useref.useStateTitle")}
             </div>
-            <div className="mt-2 font-mono text-5xl font-bold tabular-nums text-[var(--color-ink)]">
+            <div className="mt-2 font-mono text-5xl font-bold tabular-nums text-ink">
               {stateCount}
             </div>
-            <div className="mt-1 text-xs text-[var(--color-ok)]">
-              ▲ updating this re-renders → the UI always matches
+            <div className="mt-1 text-xs text-ok">
+              {t("lessons.usestate-vs-useref.stateHint")}
             </div>
             <Button
               className="mt-auto"
@@ -56,41 +55,36 @@ export default function StateVsRefLesson() {
               icon={<PlusOutlined />}
               onClick={() => setStateCount((c) => c + 1)}
             >
-              setStateCount(+1)
+              {t("lessons.usestate-vs-useref.stateBtn")}
             </Button>
           </div>
 
           {/* useRef card */}
-          <div className="flex flex-col rounded-xl border border-[var(--color-webapi)]/50 bg-[var(--color-webapi)]/8 p-5">
-            <div className="text-sm font-bold text-[var(--color-webapi)]">
-              useRef
+          <div className="flex flex-col rounded-xl border border-webapi/50 bg-webapi/8 p-5">
+            <div className="text-sm font-bold text-webapi">
+              {t("lessons.usestate-vs-useref.useRefTitle")}
             </div>
-            <div className="mt-2 font-mono text-5xl font-bold tabular-nums text-[var(--color-ink)]">
+            <div className="mt-2 font-mono text-5xl font-bold tabular-nums text-ink">
               {refCount.current}
             </div>
-            <div className="mt-1 text-xs text-[var(--color-warn)]">
-              ▲ this value is live in memory, but the screen only catches up on
-              the next render
+            <div className="mt-1 text-xs text-warn">
+              {t("lessons.usestate-vs-useref.refHint")}
             </div>
             <Button
               className="mt-auto"
               icon={<PlusOutlined />}
               onClick={() => {
-                refCount.current += 1
+                refCount.current += 1;
               }}
             >
-              refCount.current++
+              {t("lessons.usestate-vs-useref.refBtn")}
             </Button>
           </div>
         </div>
       </AnimationStage>
 
-      <Callout kind="tip" title="Try this">
-        Click <strong>refCount.current++</strong> a few times — the big number
-        won&apos;t move, because no render happened. Now click{' '}
-        <strong>Force a re-render</strong> and the ref&apos;s real, accumulated
-        value suddenly appears. The value was changing all along; React just had
-        no reason to repaint.
+      <Callout kind="tip" title={t("lessons.usestate-vs-useref.calloutTitle")}>
+        <T k="lessons.usestate-vs-useref.calloutBody" />
       </Callout>
 
       <CodeBlock
@@ -102,14 +96,11 @@ refCount.current += 1     // 🤫 mutates silently, no re-render`}
         language="js"
       />
 
-      <Section title="When to reach for a ref">
+      <Section title={t("lessons.usestate-vs-useref.whenTitle")}>
         <p>
-          Use a ref for values that shouldn&apos;t drive the UI: a DOM node (
-          <code>ref={'{inputRef}'}</code>), a timer/interval id, the previous
-          value of a prop, or any mutable bookkeeping. Use state whenever the
-          value should be <em>shown</em> and kept in sync on screen.
+          <T k="lessons.usestate-vs-useref.whenBody" />
         </p>
       </Section>
     </LessonLayout>
-  )
+  );
 }

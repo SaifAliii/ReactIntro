@@ -183,7 +183,3 @@ export const eventLoopSteps: ELState[] = [
     note: 'Final order: 1 → 4 → 3 → 2. Microtasks always beat macrotasks, even at 0 ms.',
   },
 ]
-
-export const eventLoopLabels = eventLoopSteps.map((_, i) =>
-  i === 0 ? 'Start' : `Tick ${i}`,
-)

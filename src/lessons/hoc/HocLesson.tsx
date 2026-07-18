@@ -5,6 +5,7 @@ import LessonLayout from "@/components/LessonLayout";
 import AnimationStage from "@/components/AnimationStage";
 import CodeBlock from "@/components/CodeBlock";
 import { Callout, Section } from "@/components/ui";
+import T, { useT } from "@/i18n/T";
 
 interface ProfileProps {
   name: string;
@@ -40,23 +41,19 @@ function withLoading<P extends object>(Wrapped: ComponentType<P>) {
 const ProfileWithLoading = withLoading(Profile);
 
 export default function HocLesson() {
+  const t = useT();
   const [loading, setLoading] = useState<"true" | "false">("false");
 
   return (
     <LessonLayout slug="hoc">
       <Section>
         <p>
-          A <strong className="text-ink">Higher-Order Component</strong> is just
-          a function that takes a component and returns a new one with extra
-          behavior wrapped around it — the component equivalent of a decorator.
-          The pattern: <code>const Enhanced = withSomething(Base)</code>.
-          React&apos;s own <code>React.memo</code> is an HOC, as were{" "}
-          <code>connect()</code> (Redux) and <code>withRouter</code>.
+          <T k="lessons.hoc.intro" />
         </p>
       </Section>
 
       {/* Wrapping visualization */}
-      <AnimationStage label="withLoading( Profile )" minH={220}>
+      <AnimationStage label={t("lessons.hoc.wrapLabel")} minH={220}>
         <div className="flex h-full items-center justify-center">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -64,14 +61,14 @@ export default function HocLesson() {
             className="relative rounded-2xl border-2 border-dashed border-(--color-brand) p-6"
           >
             <div className="absolute -top-3 left-4 bg-bg px-2 text-xs font-semibold text-(--color-brand)">
-              withLoading( ) — adds loading behavior + passes props through
+              {t("lessons.hoc.wrapCaption")}
             </div>
             <motion.div
               layout
               className="rounded-xl border border-brand-2/50 p-4"
             >
               <div className="mb-2 text-xs font-semibold text-brand-2">
-                Profile (unchanged, unaware it&apos;s wrapped)
+                {t("lessons.hoc.profileNote")}
               </div>
               <Profile name="Ada Lovelace" role="Mathematician" />
             </motion.div>
@@ -79,10 +76,9 @@ export default function HocLesson() {
         </div>
       </AnimationStage>
 
-      <Section title="The enhanced component in action">
+      <Section title={t("lessons.hoc.inActionTitle")}>
         <p>
-          <code>ProfileWithLoading</code> understands a new <code>loading</code>{" "}
-          prop that plain <code>Profile</code> knows nothing about. Toggle it:
+          <T k="lessons.hoc.inActionBody" />
         </p>
       </Section>
 
@@ -91,8 +87,8 @@ export default function HocLesson() {
           value={loading}
           onChange={setLoading}
           options={[
-            { label: "loading = false", value: "false" },
-            { label: "loading = true", value: "true" },
+            { label: t("lessons.hoc.segFalse"), value: "false" },
+            { label: t("lessons.hoc.segTrue"), value: "true" },
           ]}
           className="[&>.ant-segmented-group]:gap-3"
         />
@@ -136,13 +132,8 @@ const ProfileWithLoading = withLoading(Profile)
         language="tsx"
       />
 
-      <Callout kind="info" title="HOCs today: hooks usually win">
-        Most things HOCs were used for — sharing logic, injecting data,
-        cross-cutting behavior — are now done more simply with{" "}
-        <strong className="text-ink">custom hooks</strong> (e.g. a{" "}
-        <code>useLoading()</code> hook instead of <code>withLoading</code>).
-        HOCs are still worth knowing: you&apos;ll meet them in libraries, and{" "}
-        <code>React.memo</code> is one you&apos;ll use constantly.
+      <Callout kind="info" title={t("lessons.hoc.calloutTitle")}>
+        <T k="lessons.hoc.calloutBody" />
       </Callout>
     </LessonLayout>
   );
